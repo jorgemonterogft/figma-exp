@@ -1,0 +1,175 @@
+// =====================================================
+// Design tokens — extraídos del diseño Figma
+// =====================================================
+:host {
+  // Colores
+  --color-grey-white: #ffffff;
+  --color-grey-01: #f7f7f7;
+  --color-grey-05: #8d8d8d;
+  --color-grey-08: #1a1a1a;
+  --color-focus-blue: #006aff;
+  --color-focus-white: #ffffff;
+
+  // Tipografía
+  --font-family-text: "Mapfre_Text", sans-serif;
+  --font-size-text-s: 14px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+
+  // Espaciado / radios
+  --radius-pill: 16px;
+  --pill-height: 32px;
+  --pill-padding-x: 12px;
+  --pill-padding-y: 7px;
+  --pill-gap: 4px;
+  --border-width: 1px;
+
+  // Dropdown
+  --dropdown-min-width: 140px;
+  --dropdown-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --dropdown-radius: 4px;
+  --option-padding: 8px 12px;
+  --transition-speed: 0.15s;
+}
+
+// =====================================================
+// Contenedor principal
+// =====================================================
+.location-selector {
+  display: inline-flex;
+  align-items: center;
+
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+// =====================================================
+// Pill base (compartida por País e Idioma)
+// =====================================================
+.location-selector__pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pill-gap);
+  height: var(--pill-height);
+  padding: var(--pill-padding-y) var(--pill-padding-x);
+  background-color: var(--color-grey-white);
+  border: var(--border-width) solid var(--color-grey-05);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition:
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease;
+
+  // ── País: redondeo izquierdo, sin borde derecho ──
+  &--country {
+    border-right: none;
+    border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+    padding-right: var(--pill-padding-x);
+  }
+
+  // ── Idioma: redondeo derecho ──
+  &--language {
+    border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  }
+
+  // ── Estado Hover ──
+  &--hover {
+    background-color: var(--color-grey-01);
+  }
+
+  // ── Estado Abierto / Unfolded ──
+  &--open {
+    background-color: var(--color-grey-01);
+    border-color: var(--color-grey-08);
+  }
+
+  // ── Focus visible (accesibilidad teclado) ──
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-blue);
+    outline-offset: 2px;
+  }
+}
+
+// =====================================================
+// Etiqueta de texto
+// =====================================================
+.location-selector__label {
+  font-family: var(--font-family-text);
+  font-size: var(--font-size-text-s);
+  font-weight: var(--font-weight-regular);
+  font-style: normal;
+  line-height: 1;
+  color: var(--color-grey-08);
+  white-space: nowrap;
+}
+
+// =====================================================
+// Icono de flecha
+// =====================================================
+.location-selector__arrow {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+  transition: transform var(--transition-speed) ease;
+
+  &--up {
+    transform: rotate(180deg);
+  }
+}
+
+// =====================================================
+// Dropdown
+// =====================================================
+.location-selector__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: var(--dropdown-min-width);
+  background-color: var(--color-grey-white);
+  border: var(--border-width) solid var(--color-grey-05);
+  border-radius: var(--dropdown-radius);
+  box-shadow: var(--dropdown-shadow);
+  z-index: 100;
+  overflow: hidden;
+
+  // Alineación derecha para el dropdown de idioma
+  &--right {
+    left: auto;
+    right: 0;
+  }
+}
+
+// =====================================================
+// Opción del dropdown
+// =====================================================
+.location-selector__option {
+  padding: var(--option-padding);
+  font-family: var(--font-family-text);
+  font-size: var(--font-size-text-s);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-grey-08);
+  cursor: pointer; // ya estaba — confirmado
+  transition: background-color var(--transition-speed) ease;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-grey-01);
+  }
+
+  // Separador entre opciones
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+  }
+
+  // Opción seleccionada
+  &--selected {
+    font-weight: var(--font-weight-medium);
+    background-color: var(--color-grey-01);
+  }
+}

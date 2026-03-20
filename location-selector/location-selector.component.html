@@ -1,0 +1,107 @@
+<div class="location-selector" [class.location-selector--disabled]="disabled">
+
+  <!-- ===== COUNTRY PILL ===== -->
+  <div
+    class="location-selector__pill location-selector__pill--country"
+    [class.location-selector__pill--hover]="countryHovered && !isCountryOpen"
+    [class.location-selector__pill--open]="isCountryOpen"
+    [attr.aria-expanded]="isCountryOpen"
+    [attr.aria-haspopup]="true"
+    [attr.aria-disabled]="disabled"
+    role="button"
+    tabindex="0"
+    (click)="toggleCountry()"
+    (mouseenter)="countryHovered = true"
+    (mouseleave)="countryHovered = false"
+    (keydown.enter)="toggleCountry()"
+    (keydown.space)="toggleCountry()"
+  >
+    <span class="location-selector__label">{{ selectedCountry.label }}</span>
+    <svg
+      class="location-selector__arrow"
+      [class.location-selector__arrow--up]="isCountryOpen"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path d="M3 6L8 11L13 6" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Dropdown país -->
+    <div
+      *ngIf="isCountryOpen"
+      class="location-selector__dropdown"
+      role="listbox"
+      [attr.aria-label]="'Seleccionar país'"
+    >
+      <div
+        *ngFor="let country of countries"
+        class="location-selector__option"
+        [class.location-selector__option--selected]="isCountrySelected(country)"
+        role="option"
+        [attr.aria-selected]="isCountrySelected(country)"
+        (click)="selectCountry(country); $event.stopPropagation()"
+        (keydown.enter)="selectCountry(country); $event.stopPropagation()"
+        tabindex="0"
+      >
+        {{ country.label }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LANGUAGE PILL ===== -->
+  <div
+    class="location-selector__pill location-selector__pill--language"
+    [class.location-selector__pill--hover]="languageHovered && !isLanguageOpen"
+    [class.location-selector__pill--open]="isLanguageOpen"
+    [attr.aria-expanded]="isLanguageOpen"
+    [attr.aria-haspopup]="true"
+    [attr.aria-disabled]="disabled"
+    role="button"
+    tabindex="0"
+    (click)="toggleLanguage()"
+    (mouseenter)="languageHovered = true"
+    (mouseleave)="languageHovered = false"
+    (keydown.enter)="toggleLanguage()"
+    (keydown.space)="toggleLanguage()"
+  >
+    <span class="location-selector__label">{{ selectedLanguage.code }}</span>
+    <svg
+      class="location-selector__arrow"
+      [class.location-selector__arrow--up]="isLanguageOpen"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path d="M3 6L8 11L13 6" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Dropdown idioma -->
+    <div
+      *ngIf="isLanguageOpen"
+      class="location-selector__dropdown location-selector__dropdown--right"
+      role="listbox"
+      [attr.aria-label]="'Seleccionar idioma'"
+    >
+      <div
+        *ngFor="let language of languages"
+        class="location-selector__option"
+        [class.location-selector__option--selected]="isLanguageSelected(language)"
+        role="option"
+        [attr.aria-selected]="isLanguageSelected(language)"
+        (click)="selectLanguage(language); $event.stopPropagation()"
+        (keydown.enter)="selectLanguage(language); $event.stopPropagation()"
+        tabindex="0"
+      >
+        {{ language.label }}
+      </div>
+    </div>
+  </div>
+
+</div>

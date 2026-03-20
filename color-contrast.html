@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Contraste de Colores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Mapfre_Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8d8d8d;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .colors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .category-title {
+            grid-column: 1 / -1;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-top: 30px;
+            margin-bottom: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #d9d9d9;
+        }
+
+        .category-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .color-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .color-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .color-sample {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-info {
+            padding: 20px;
+        }
+
+        .color-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .color-hex {
+            font-size: 14px;
+            color: #8d8d8d;
+            font-family: "Courier New", monospace;
+            margin-bottom: 12px;
+        }
+
+        .contrast-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f7f7f7;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .contrast-label {
+            font-size: 13px;
+            color: #8d8d8d;
+            font-weight: 500;
+        }
+
+        .contrast-ratio {
+            font-size: 16px;
+            font-weight: 600;
+            color: #006aff;
+            font-family: "Courier New", monospace;
+        }
+
+        .wcag-compliance {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .wcag-level {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .wcag-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .wcag-pass {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .wcag-fail {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .wcag-large {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #8d8d8d;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .legend {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend h3 {
+            color: #1a1a1a;
+            font-size: 16px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            font-size: 13px;
+            color: #8d8d8d;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-badge {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* Sección de Colores para Gráficos */
+        .chart-colors-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-colors-section h2 {
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .chart-colors-section p {
+            color: #8d8d8d;
+            margin-bottom: 24px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .chart-colors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            border: 1px solid #d9d9d9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .chart-color-swatch:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .chart-color-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+        }
+
+        .chart-color-hex {
+            font-size: 11px;
+            color: #8d8d8d;
+            font-family: "Courier New", monospace;
+            text-align: center;
+        }
+
+        .chart-color-ratio {
+            font-size: 10px;
+            color: #006aff;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* ── Nav bar ── */
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            background: #1A1A1A;
+            display: flex; align-items: center; gap: 0;
+            padding: 0 24px;
+            margin: -40px -20px 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.18);
+        }
+        .topnav a {
+            color: #D9D9D9; text-decoration: none;
+            font-size: 13px; font-weight: 500;
+            padding: 14px 16px; display: inline-block;
+            border-bottom: 2px solid transparent;
+            transition: color .15s, border-color .15s;
+            white-space: nowrap;
+        }
+        .topnav a:hover   { color: #FFFFFF; border-bottom-color: #FF002D; }
+        .topnav a.active  { color: #FFFFFF; border-bottom-color: #FF002D; }
+        .topnav a.home    { color: #FF002D; font-weight: 700; padding-right: 20px; border-right: 1px solid #404040; margin-right: 4px; }
+        .topnav a.home:hover { color: #FF002D; border-bottom-color: transparent; opacity: .8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="topnav">
+            <a href="./index.html" class="home">⬡ B2B DS</a>
+            <a href="./color-contrast.html" class="active">Contraste de Color</a>
+            <a href="./chart-showcase.html">Chart Showcase</a>
+        </nav>
+        <h1>B2B Design System - Análisis de Contraste de Colores</h1>
+        <p class="subtitle">Paleta de colores oficial (Default.tokens.json) con niveles de contraste respecto a fondo blanco (#FFFFFF)</p>
+
+        <!-- Sección de Colores Accesibles para Gráficos -->
+        <div id="chartColorsSection"></div>
+
+        <div class="legend">
+            <h3>Criterios de Cumplimiento WCAG 2.1</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="legend-badge wcag-pass">✓ AA</span>
+                    <span>Contraste suficiente para texto normal (4.5:1 o superior)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-badge wcag-large">✓ AA Large</span>
+                    <span>Contraste para texto grande (3:1 o superior)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-badge wcag-fail">✗ No cumple</span>
+                    <span>Contraste insuficiente para accesibilidad</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="colors-grid" id="colorsGrid"></div>
+    </div>
+
+    <script>
+        // Colores oficiales del B2B Design System
+        // Fuente de verdad: Default.tokens.json (b2b-colors)
+        const colors = [
+            // Red
+            { name: 'red/01', hex: '#DF0027', category: 'Red' },
+            { name: 'red/02', hex: '#BF0022', category: 'Red' },
+            { name: 'red/03', hex: '#A0001C', category: 'Red' },
+            { name: 'red/04', hex: '#800016', category: 'Red' },
+            { name: 'red/05', hex: '#600011', category: 'Red' },
+            { name: 'red/06', hex: '#40000B', category: 'Red' },
+            { name: 'red/Brand', hex: '#FF002D', category: 'Red' },
+
+            // Grey
+            { name: 'grey/01', hex: '#F7F7F7', category: 'Grey' },
+            { name: 'grey/02', hex: '#E8E8E8', category: 'Grey' },
+            { name: 'grey/03', hex: '#D9D9D9', category: 'Grey' },
+            { name: 'grey/04', hex: '#B3B3B3', category: 'Grey' },
+            { name: 'grey/05', hex: '#8D8D8D', category: 'Grey' },
+            { name: 'grey/06', hex: '#666666', category: 'Grey' },
+            { name: 'grey/07', hex: '#404040', category: 'Grey' },
+            { name: 'grey/08', hex: '#1A1A1A', category: 'Grey' },
+
+            // White
+            { name: 'white/01', hex: '#FFFFFF', category: 'White' },
+
+            // State - Focus
+            { name: 'state/Focus', hex: '#006AFF', category: 'State - Focus' },
+
+            // State - Success
+            { name: 'state/success/01', hex: '#E9F6EC', category: 'State - Success' },
+            { name: 'state/success/02', hex: '#BEE4C7', category: 'State - Success' },
+            { name: 'state/success/03', hex: '#28A545', category: 'State - Success' },
+
+            // State - Info
+            { name: 'state/info/01', hex: '#0D82BD', category: 'State - Info' },
+            { name: 'state/info/02', hex: '#B6D9EB', category: 'State - Info' },
+            { name: 'state/info/03', hex: '#E7F2F8', category: 'State - Info' },
+
+            // State - Alert
+            { name: 'state/alert/01', hex: '#E46B15', category: 'State - Alert' },
+            { name: 'state/alert/02', hex: '#F7D3B9', category: 'State - Alert' },
+            { name: 'state/alert/03', hex: '#FCF0E8', category: 'State - Alert' },
+
+            // State - Error
+            { name: 'state/error/01', hex: '#DA2A2A', category: 'State - Error' },
+            { name: 'state/error/02', hex: '#F4BFBF', category: 'State - Error' },
+            { name: 'state/error/03', hex: '#FBEAEA', category: 'State - Error' },
+
+            // Transparencies - Black
+            { name: 'transparencies/black/01', hex: 'rgba(0, 0, 0, 0.10)', category: 'Transparencies' },
+            { name: 'transparencies/black/02', hex: 'rgba(0, 0, 0, 0.20)', category: 'Transparencies' },
+            { name: 'transparencies/black/03', hex: 'rgba(0, 0, 0, 0.40)', category: 'Transparencies' },
+            { name: 'transparencies/modal/01', hex: 'rgba(0, 0, 0, 0.70)', category: 'Transparencies' },
+
+            // Transparencies - White
+            { name: 'transparencies/white/01', hex: 'rgba(255, 255, 255, 0.20)', category: 'Transparencies' },
+            { name: 'transparencies/white/02', hex: 'rgba(255, 255, 255, 0.40)', category: 'Transparencies' },
+            { name: 'transparencies/white/03', hex: 'rgba(255, 255, 255, 0.70)', category: 'Transparencies' },
+
+            // Support - Blue
+            { name: 'support/blue/01', hex: '#DBF5F6', category: 'Support - Blue' },
+            { name: 'support/blue/02', hex: '#ABE8EA', category: 'Support - Blue' },
+            { name: 'support/blue/03', hex: '#7BDBDD', category: 'Support - Blue' },
+            { name: 'support/blue/04', hex: '#4BCED1', category: 'Support - Blue' },
+            { name: 'support/blue/05', hex: '#349EA0', category: 'Support - Blue' },
+            { name: 'support/blue/06', hex: '#1D6F70', category: 'Support - Blue' },
+            { name: 'support/blue/07', hex: '#063F3F', category: 'Support - Blue' },
+
+            // Support - Yellow
+            { name: 'support/yellow/01', hex: '#FFF6D9', category: 'Support - Yellow' },
+            { name: 'support/yellow/02', hex: '#FFEAA6', category: 'Support - Yellow' },
+            { name: 'support/yellow/03', hex: '#FFDE73', category: 'Support - Yellow' },
+            { name: 'support/yellow/04', hex: '#FFD240', category: 'Support - Yellow' },
+            { name: 'support/yellow/05', hex: '#C8A22B', category: 'Support - Yellow' },
+            { name: 'support/yellow/06', hex: '#907215', category: 'Support - Yellow' },
+            { name: 'support/yellow/07', hex: '#594200', category: 'Support - Yellow' },
+
+            // Support - Green
+            { name: 'support/green/01', hex: '#D8F7DF', category: 'Support - Green' },
+            { name: 'support/green/02', hex: '#A3EDB5', category: 'Support - Green' },
+            { name: 'support/green/03', hex: '#6FE28A', category: 'Support - Green' },
+            { name: 'support/green/04', hex: '#3AD860', category: 'Support - Green' },
+            { name: 'support/green/05', hex: '#28A545', category: 'Support - Green' },
+            { name: 'support/green/06', hex: '#15722B', category: 'Support - Green' },
+            { name: 'support/green/07', hex: '#033F10', category: 'Support - Green' },
+
+            // Support - Pink
+            { name: 'support/pink/01', hex: '#FFDBEA', category: 'Support - Pink' },
+            { name: 'support/pink/02', hex: '#FFACCE', category: 'Support - Pink' },
+            { name: 'support/pink/03', hex: '#FF7CB2', category: 'Support - Pink' },
+            { name: 'support/pink/04', hex: '#FF4D96', category: 'Support - Pink' },
+            { name: 'support/pink/05', hex: '#C83371', category: 'Support - Pink' },
+            { name: 'support/pink/06', hex: '#901A4D', category: 'Support - Pink' },
+            { name: 'support/pink/07', hex: '#590028', category: 'Support - Pink' },
+        ];
+
+        // Función para calcular la luminancia relativa (WCAG)
+        function getLuminance(hex) {
+            let rgb;
+            
+            // Manejar rgba
+            if (hex.toLowerCase().includes('rgba')) {
+                return null; // No calculamos luminancia para rgba
+            }
+            
+            rgb = parseInt(hex.slice(1), 16);
+            const r = (rgb >> 16) & 255;
+            const g = (rgb >> 8) & 255;
+            const b = rgb & 255;
+
+            const [rs, gs, bs] = [r, g, b].map(val => {
+                val = val / 255;
+                return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
+            });
+
+            return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+        }
+
+        // Función para calcular el ratio de contraste
+        function getContrastRatio(color1, color2) {
+            const lum1 = getLuminance(color1);
+            const lum2 = getLuminance(color2);
+            
+            if (!lum1 || !lum2) return null;
+            
+            const lighter = Math.max(lum1, lum2);
+            const darker = Math.min(lum1, lum2);
+            return ((lighter + 0.05) / (darker + 0.05)).toFixed(2);
+        }
+
+        // Función para determinar el cumplimiento WCAG
+        function getWCAGCompliance(ratio) {
+            ratio = parseFloat(ratio);
+            return {
+                AA: ratio >= 4.5,
+                AALarge: ratio >= 3,
+                AAA: ratio >= 7,
+            };
+        }
+
+        // Función para determinar el color del texto
+        function getTextColor(hex) {
+            if (hex.toLowerCase().includes('rgba')) {
+                return '#1a1a1a'; // Por defecto para rgba
+            }
+            const lum = getLuminance(hex);
+            return lum > 0.5 ? '#1a1a1a' : '#ffffff';
+        }
+
+        // Generar las tarjetas de colores agrupadas por categoría
+        const grid = document.getElementById('colorsGrid');
+        const whiteBackground = '#ffffff';
+
+        // Agrupar colores por categoría
+        const colorsByCategory = {};
+        colors.forEach(color => {
+            if (!colorsByCategory[color.category]) {
+                colorsByCategory[color.category] = [];
+            }
+            colorsByCategory[color.category].push(color);
+        });
+
+        // PRIMERO: Generar sección de colores accesibles para gráficos
+        const chartSection = document.getElementById('chartColorsSection');
+        const accessibleColors = [];
+
+        colors.forEach(color => {
+            if (!color.hex.toLowerCase().includes('rgba')) {
+                const ratio = parseFloat(getContrastRatio(color.hex, whiteBackground));
+                if (ratio >= 3) {
+                    accessibleColors.push({
+                        ...color,
+                        ratio: ratio
+                    });
+                }
+            }
+        });
+
+        if (accessibleColors.length > 0) {
+            const chartHTML = `
+                <div class="chart-colors-section">
+                    <h2>🎨 Colores Accesibles para Gráficos</h2>
+                    <p>Colores oficiales B2B que cumplen con el ratio de contraste <strong>3:1 mínimo (WCAG AA Large)</strong> contra fondo blanco. Seguros para gráficos de barras, donut, líneas y otros elementos de visualización de datos.</p>
+                    <div class="chart-colors-grid">
+                        ${accessibleColors.map(color => `
+                            <div class="chart-color-item">
+                                <div class="chart-color-swatch" style="background-color: ${color.hex};" title="${color.name}"></div>
+                                <div class="chart-color-label">${color.name}</div>
+                                <div class="chart-color-hex">${color.hex.toUpperCase()}</div>
+                                <div class="chart-color-ratio">${color.ratio.toFixed(2)}:1</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            chartSection.innerHTML = chartHTML;
+        }
+
+        // SEGUNDO: Crear secciones de la paleta completa por categoría
+        Object.keys(colorsByCategory).sort().forEach(category => {
+            // Crear titulo de categoría
+            const categoryTitle = document.createElement('div');
+            categoryTitle.className = 'category-title';
+            categoryTitle.textContent = category;
+            grid.appendChild(categoryTitle);
+
+            // Crear cards de colores en esta categoría
+            colorsByCategory[category].forEach(color => {
+                // Detectar si es rgba
+                const isRgba = color.hex.toLowerCase().includes('rgba');
+                
+                // Para rgba, calcular contraste usando rgb solid
+                let contrastRatio;
+                let complianceInfo = 'Transparencia - usar con cuidado';
+                let compliance = { AA: false, AALarge: false };
+                
+                if (!isRgba) {
+                    contrastRatio = getContrastRatio(color.hex, whiteBackground);
+                    compliance = getWCAGCompliance(contrastRatio);
+                } else {
+                    contrastRatio = 'N/A';
+                }
+                
+                const textColor = isRgba ? '#1a1a1a' : getTextColor(color.hex);
+
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                card.innerHTML = `
+                    <div class="color-sample" style="background-color: ${color.hex}; color: ${textColor};">
+                        ${color.hex.toUpperCase()}
+                    </div>
+                    <div class="color-info">
+                        <div class="color-name">${color.name}</div>
+                        <div class="color-hex">${color.hex.toUpperCase()}</div>
+                        
+                        <div class="contrast-info">
+                            <span class="contrast-label">Contraste vs. Blanco</span>
+                            <span class="contrast-ratio">${contrastRatio === 'N/A' ? 'N/A' : contrastRatio + ':1'}</span>
+                        </div>
+
+                        ${isRgba ? `
+                            <div class="info-text">
+                                ⚠️ ${complianceInfo}
+                            </div>
+                        ` : `
+                            <div class="wcag-compliance">
+                                <div class="wcag-level">
+                                    ${compliance.AA ? '<span class="wcag-badge wcag-pass">✓ WCAG AA</span>' : '<span class="wcag-badge wcag-fail">✗ AA</span>'}
+                                    <span>Texto normal (4.5:1)</span>
+                                </div>
+                                <div class="wcag-level">
+                                    ${compliance.AALarge ? '<span class="wcag-badge wcag-large">✓ WCAG AA</span>' : '<span class="wcag-badge wcag-fail">✗ AA</span>'}
+                                    <span>Texto grande (3:1)</span>
+                                </div>
+                            </div>
+
+                            <div class="info-text">
+                                ${compliance.AA 
+                                    ? '✓ Cumple para texto normal sobre fondo blanco' 
+                                    : '✗ No cumple para texto normal. Usar solo en componentes grandes.'}
+                            </div>
+                        `}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

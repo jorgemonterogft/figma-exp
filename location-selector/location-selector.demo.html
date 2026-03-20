@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocationSelector — Referencia de componente</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-white:    #ffffff;
+      --color-grey-01:  #f7f7f7;
+      --color-grey-05:  #8d8d8d;
+      --color-grey-08:  #1a1a1a;
+      --color-focus:    #006aff;
+      --font-family:         "Mapfre_Text", system-ui, sans-serif;
+      --font-size-s:         14px;
+      --font-weight-regular: 400;
+      --font-weight-medium:  500;
+      --pill-height:   32px;
+      --pill-radius:   16px;
+      --pill-pl:       12px;
+      --pill-pr:        8px;
+      --pill-py:        7px;
+      --pill-gap:       4px;
+      --menu-py:        8px;
+      --menu-radius:   16px;
+      --opt-px:        12px;
+      --opt-py:         8px;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: #ffffff;
+      color: var(--color-grey-08);
+      padding: 52px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 29px;
+    }
+
+    /* ── LOCATION contenedor ── */
+    .location {
+      display: inline-flex;
+      align-items: center;
+    }
+    .location--unfolded {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .location__pills {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* ── PILL base ── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--pill-gap);
+      height: var(--pill-height);
+      padding: var(--pill-py) var(--pill-pr) var(--pill-py) var(--pill-pl);
+      background: var(--color-white);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    .pill--country {
+      border-top:    1px solid var(--color-grey-05);
+      border-bottom: 1px solid var(--color-grey-05);
+      border-left:   1px solid var(--color-grey-05);
+      border-right:  none;
+      border-radius: var(--pill-radius) 0 0 var(--pill-radius);
+    }
+    .pill--language {
+      border: 1px solid var(--color-grey-05);
+      border-radius: 0 var(--pill-radius) var(--pill-radius) 0;
+    }
+    .pill--country.pill--hover { background: var(--color-grey-01); }
+
+    .pill__label {
+      font-family:  var(--font-family);
+      font-size:    var(--font-size-s);
+      font-weight:  var(--font-weight-regular);
+      font-style:   normal;
+      line-height:  1;
+      color:        var(--color-grey-08);
+    }
+
+    .pill__arrow {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pill__arrow img {
+      width:  10.67px;
+      height: 6px;
+      display: block;
+    }
+    .pill__arrow--up img { transform: rotate(180deg); }
+
+    /* ── MENU desplegable ── */
+    .location__menu {
+      position: fixed;
+      width: 184px;
+      background: var(--color-white);
+      border: 1px solid var(--color-grey-05);
+      border-radius: var(--menu-radius);
+      padding: var(--menu-py) 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      box-shadow: 0 4px 16px rgba(0,0,0,.10);
+    }
+
+    /* ── MENU ITEM ── */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: var(--opt-py) var(--opt-px);
+      background: var(--color-white);
+      position: relative;
+      isolation: isolate;
+      cursor: pointer;
+    }
+    .menu-item__label {
+      font-family:  var(--font-family);
+      font-size:    var(--font-size-s);
+      font-weight:  var(--font-weight-regular);
+      font-style:   normal;
+      line-height:  normal;
+      color:        var(--color-grey-08);
+      flex: 1 0 0;
+      min-width: 1px;
+    }
+    .menu-item--hover { background: var(--color-grey-01); }
+    .menu-item--hover::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left:  var(--opt-px);
+      right: var(--opt-px);
+      height: 1px;
+      background: var(--color-grey-08);
+    }
+    .menu-item--selected .menu-item__label { font-weight: var(--font-weight-medium); }
+
+    /* ── Transiciones ── */
+    .pill          { transition: background 0.12s ease; }
+    .pill__arrow img { transition: transform 0.15s ease; }
+    .location__menu { animation: menuIn 0.12s ease; }
+    @keyframes menuIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Focus visible ── */
+    .pill:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+
+    /* ── Estado interactivo: pill abierta ── */
+    .pill--open { background: var(--color-grey-01); }
+
+    /* ── Resultado de selección ── */
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #666;
+      background: #f7f7f7;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-top: 16px;
+    }
+    .result-badge strong { color: var(--color-grey-08); }
+
+    /* ── Page chrome ── */
+    .page-header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .page-header p  { font-size: 13px; color: #666; }
+    .divider { border: none; border-top: 1px solid #e5e5e5; margin: 8px 0 24px; }
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #8d8d8d; margin-bottom: 24px; }
+
+    /* ── Tabla API ── */
+    .api-wrap { margin-top: 24px; }
+    .props-table { width: 100%; max-width: 860px; border-collapse: collapse; font-size: 13px; }
+    .props-table th { text-align: left; padding: 8px 12px; background: #f7f7f7; font-weight: 600; border-bottom: 1px solid #e5e5e5; }
+    .props-table td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    .props-table tr:last-child td { border-bottom: none; }
+    code { font-size: 12px; background: #f3f3f3; border-radius: 3px; padding: 2px 5px; font-family: "SF Mono", Menlo, monospace; }
+  </style>
+<body>
+
+  <header class="page-header">
+    <h1>LocationSelector</h1>
+    <p>Selector de país e idioma · Angular component · Figma node: 3284-1590</p>
+  </header>
+
+  <hr class="divider" />
+  <p class="section-label">Componente interactivo</p>
+
+  <!-- ══ COMPONENTE INTERACTIVO ══ -->
+  <div id="location-selector" class="location" role="group" aria-label="Selector de ubicación e idioma">
+
+    <!-- País -->
+    <div
+      id="pill-country"
+      class="pill pill--country"
+      role="button"
+      tabindex="0"
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      aria-label="País seleccionado: España"
+    >
+      <span class="pill__label" id="country-label">España</span>
+      <span class="pill__arrow" id="country-arrow" aria-hidden="true">
+        <img src="http://localhost:3845/assets/275e198a38b24b62582ea605f0b07eb12bb41b5e.svg" alt="" />
+      </span>
+    </div>
+
+    <!-- Idioma -->
+    <div
+      id="pill-language"
+      class="pill pill--language"
+      role="button"
+      tabindex="0"
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      aria-label="Idioma seleccionado: ES"
+    >
+      <span class="pill__label" id="language-label">ES</span>
+      <span class="pill__arrow" id="language-arrow" aria-hidden="true">
+        <img src="http://localhost:3845/assets/275e198a38b24b62582ea605f0b07eb12bb41b5e.svg" alt="" />
+      </span>
+    </div>
+
+  </div>
+
+  <!-- Menús posicionados en el body para evitar problemas de clipping -->
+  <div id="menu-country"  class="location__menu" role="listbox" aria-label="Países disponibles"  style="display:none"></div>
+  <div id="menu-language" class="location__menu" role="listbox" aria-label="Idiomas disponibles" style="display:none"></div>
+
+  <!-- Badge de resultado -->
+  <div class="result-badge" id="result-badge">
+    Selección actual: <strong id="result-country">España</strong> · <strong id="result-language">Español (ES)</strong>
+  </div>
+
+  <!-- ══ API ══ -->
+  <div class="api-wrap">
+    <hr class="divider" />
+    <p class="section-label">API del componente Angular</p>
+    <table class="props-table">
+      <thead>
+        <tr><th>Input / Output</th><th>Tipo</th><th>Default</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>selectedCountry</code></td><td><code>LocationOption</code></td><td><code>COUNTRIES[0]</code></td><td>País actualmente seleccionado.</td></tr>
+        <tr><td><code>selectedLanguage</code></td><td><code>LocationOption</code></td><td><code>LANGUAGES[0]</code></td><td>Idioma actualmente seleccionado.</td></tr>
+        <tr><td><code>countries</code></td><td><code>LocationOption[]</code></td><td>Lista predefinida</td><td>Opciones disponibles en el dropdown de país.</td></tr>
+        <tr><td><code>languages</code></td><td><code>LocationOption[]</code></td><td>Lista predefinida</td><td>Opciones disponibles en el dropdown de idioma.</td></tr>
+        <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Deshabilita toda interacción.</td></tr>
+        <tr><td><code>(countryChange)</code></td><td><code>EventEmitter&lt;LocationOption&gt;</code></td><td>—</td><td>Emite al cambiar de país.</td></tr>
+        <tr><td><code>(languageChange)</code></td><td><code>EventEmitter&lt;LocationOption&gt;</code></td><td>—</td><td>Emite al cambiar de idioma.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // ─── Datos ───────────────────────────────────────────────
+    const COUNTRIES = [
+      { code: 'ES', label: 'España' },
+      { code: 'PT', label: 'Portugal' },
+      { code: 'MX', label: 'México' },
+      { code: 'BR', label: 'Brasil' },
+      { code: 'CO', label: 'Colombia' },
+      { code: 'AR', label: 'Argentina' },
+    ];
+
+    const LANGUAGES = [
+      { code: 'ES', label: 'Español' },
+      { code: 'PT', label: 'Português' },
+      { code: 'EN', label: 'English' },
+      { code: 'FR', label: 'Français' },
+      { code: 'DE', label: 'Deutsch' },
+    ];
+
+    // ─── Estado ──────────────────────────────────────────────
+    let state = {
+      country:  COUNTRIES[0],
+      language: LANGUAGES[0],
+      openMenu: null,   // 'country' | 'language' | null
+    };
+
+    // ─── Refs ────────────────────────────────────────────────
+    const pillCountry   = document.getElementById('pill-country');
+    const pillLanguage  = document.getElementById('pill-language');
+    const menuCountry   = document.getElementById('menu-country');
+    const menuLanguage  = document.getElementById('menu-language');
+    const countryLabel  = document.getElementById('country-label');
+    const languageLabel = document.getElementById('language-label');
+    const countryArrow  = document.getElementById('country-arrow');
+    const languageArrow = document.getElementById('language-arrow');
+    const resultCountry = document.getElementById('result-country');
+    const resultLang    = document.getElementById('result-language');
+
+    // ─── Render de opciones de menú ──────────────────────────
+    function renderMenu(menuEl, items, selectedCode, onSelect) {
+      menuEl.innerHTML = '';
+      items.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'menu-item' + (item.code === selectedCode ? ' menu-item--selected' : '');
+        div.setAttribute('role', 'option');
+        div.setAttribute('aria-selected', item.code === selectedCode ? 'true' : 'false');
+        div.setAttribute('tabindex', '0');
+
+        const span = document.createElement('span');
+        span.className = 'menu-item__label';
+        span.textContent = item.label;
+        div.appendChild(span);
+
+        // Hover visual
+        div.addEventListener('mouseenter', () => {
+          if (item.code !== selectedCode) div.classList.add('menu-item--hover');
+        });
+        div.addEventListener('mouseleave', () => {
+          div.classList.remove('menu-item--hover');
+        });
+
+        // Click
+        div.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onSelect(item);
+        });
+
+        // Teclado: Enter / Space
+        div.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSelect(item);
+          }
+          // Navegar con flechas
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = menuEl.querySelectorAll('.menu-item')[idx + 1];
+            if (next) next.focus();
+          }
+          if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = menuEl.querySelectorAll('.menu-item')[idx - 1];
+            if (prev) prev.focus();
+          }
+          if (e.key === 'Escape') closeAll();
+        });
+
+        menuEl.appendChild(div);
+      });
+    }
+
+    // ─── Posicionar menú bajo su pill ancla ─────────────────
+    function positionMenu(menuEl, anchorEl, alignRight = false) {
+      const r = anchorEl.getBoundingClientRect();
+      menuEl.style.top = (r.bottom + 4) + 'px';
+      if (alignRight) {
+        // borde derecho del menú coincide con borde derecho de la pill
+        menuEl.style.left = 'auto';
+        menuEl.style.right = (window.innerWidth - r.right) + 'px';
+      } else {
+        menuEl.style.right = 'auto';
+        menuEl.style.left = r.left + 'px';
+      }
+    }
+
+    // ─── Abrir menú ──────────────────────────────────────────
+    function openMenu(type) {
+      state.openMenu = type;
+
+      if (type === 'country') {
+        renderMenu(menuCountry, COUNTRIES, state.country.code, selectCountry);
+        positionMenu(menuCountry, pillCountry, false);
+        menuCountry.style.display  = 'flex';
+        menuLanguage.style.display = 'none';
+        pillCountry.classList.add('pill--open');
+        pillCountry.setAttribute('aria-expanded', 'true');
+        pillLanguage.classList.remove('pill--open');
+        pillLanguage.setAttribute('aria-expanded', 'false');
+        countryArrow.classList.add('pill__arrow--up');
+        languageArrow.classList.remove('pill__arrow--up');
+        setTimeout(() => menuCountry.querySelector('.menu-item')?.focus(), 0);
+      } else {
+        renderMenu(menuLanguage, LANGUAGES, state.language.code, selectLanguage);
+        positionMenu(menuLanguage, pillLanguage, true);
+        menuLanguage.style.display = 'flex';
+        menuCountry.style.display  = 'none';
+        pillLanguage.classList.add('pill--open');
+        pillLanguage.setAttribute('aria-expanded', 'true');
+        pillCountry.classList.remove('pill--open');
+        pillCountry.setAttribute('aria-expanded', 'false');
+        languageArrow.classList.add('pill__arrow--up');
+        countryArrow.classList.remove('pill__arrow--up');
+        setTimeout(() => {
+          const sel = menuLanguage.querySelector('[aria-selected="true"]');
+          (sel || menuLanguage.querySelector('.menu-item'))?.focus();
+        }, 0);
+      }
+    }
+
+    // ─── Cerrar todos ────────────────────────────────────────
+    function closeAll() {
+      state.openMenu = null;
+      menuCountry.style.display  = 'none';
+      menuLanguage.style.display = 'none';
+      pillCountry.classList.remove('pill--open');
+      pillLanguage.classList.remove('pill--open');
+      pillCountry.setAttribute('aria-expanded', 'false');
+      pillLanguage.setAttribute('aria-expanded', 'false');
+      countryArrow.classList.remove('pill__arrow--up');
+      languageArrow.classList.remove('pill__arrow--up');
+    }
+
+    // ─── Toggle ──────────────────────────────────────────────
+    function toggleMenu(type) {
+      if (state.openMenu === type) {
+        closeAll();
+      } else {
+        openMenu(type);
+      }
+    }
+
+    // ─── Seleccionar país ────────────────────────────────────
+    function selectCountry(item) {
+      state.country = item;
+      countryLabel.textContent = item.label;
+      pillCountry.setAttribute('aria-label', `País seleccionado: ${item.label}`);
+      resultCountry.textContent = item.label;
+      closeAll();
+      pillCountry.focus();
+      // → En Angular: this.countryChange.emit(item)
+      console.log('[LocationSelector] countryChange:', item);
+    }
+
+    // ─── Seleccionar idioma ──────────────────────────────────
+    function selectLanguage(item) {
+      state.language = item;
+      languageLabel.textContent = item.code;
+      pillLanguage.setAttribute('aria-label', `Idioma seleccionado: ${item.label}`);
+      resultLang.textContent = `${item.label} (${item.code})`;
+      closeAll();
+      pillLanguage.focus();
+      // → En Angular: this.languageChange.emit(item)
+      console.log('[LocationSelector] languageChange:', item);
+    }
+
+    // ─── Eventos de pill ─────────────────────────────────────
+    pillCountry.addEventListener('click', () => toggleMenu('country'));
+    pillLanguage.addEventListener('click', () => toggleMenu('language'));
+
+    // Teclado: Enter / Space abre; Escape cierra
+    [pillCountry, pillLanguage].forEach((pill, i) => {
+      const type = i === 0 ? 'country' : 'language';
+      pill.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMenu(type); }
+        if (e.key === 'Escape') closeAll();
+        if (e.key === 'Tab' && state.openMenu) closeAll();
+      });
+    });
+
+    // Hover visual en pills
+    pillCountry.addEventListener('mouseenter', () => {
+      if (!pillCountry.classList.contains('pill--open'))
+        pillCountry.classList.add('pill--hover');
+    });
+    pillCountry.addEventListener('mouseleave', () => {
+      pillCountry.classList.remove('pill--hover');
+    });
+    pillLanguage.addEventListener('mouseenter', () => {
+      if (!pillLanguage.classList.contains('pill--open'))
+        pillLanguage.classList.add('pill--hover');
+    });
+    pillLanguage.addEventListener('mouseleave', () => {
+      pillLanguage.classList.remove('pill--hover');
+    });
+
+    // ─── Cierre al clicar fuera ──────────────────────────────
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('location-selector').contains(e.target)) {
+        closeAll();
+      }
+    });
+
+    // ─── Cierre con Escape global ────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAll();
+    });
+  </script>
+
+</body>
+</html>

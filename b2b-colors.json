@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "name": "B2B Design System - Color Palette",
+    "source": "https://www.figma.com/design/RcbW4hQsuC3vUswO0HiGN1/B2B-B2E---DS---BETA",
+    "lastUpdated": "2026-03-19",
+    "totalColors": 92
+  },
+  "brandColors": {
+    "red": [
+      { "name": "Red 01", "value": "#DF0027", "index": 1 },
+      { "name": "Red 02", "value": "#BF0022", "index": 2 },
+      { "name": "Red 03", "value": "#A0001C", "index": 3 },
+      { "name": "Red 04", "value": "#800016", "index": 4 },
+      { "name": "Red 05", "value": "#600011", "index": 5 },
+      { "name": "Red 06", "value": "#40000B", "index": 6 },
+      { "name": "Red Primary", "value": "#D81E05", "index": "primary" },
+      { "name": "Red Brand", "value": "#FF002D", "index": "brand" }
+    ],
+    "grey": [
+      { "name": "Grey 01", "value": "#F8F8F8", "index": 1 },
+      { "name": "Grey 02", "value": "#E8E8E8", "index": 2 },
+      { "name": "Grey 03", "value": "#D9D9D9", "index": 3 },
+      { "name": "Grey 04", "value": "#B3B3B3", "index": 4 },
+      { "name": "Grey 05", "value": "#8D8D8D", "index": 5 },
+      { "name": "Grey 06", "value": "#666666", "index": 6 },
+      { "name": "Grey 07", "value": "#404040", "index": 7 },
+      { "name": "Grey 08", "value": "#1A1A1A", "index": 8 }
+    ],
+    "white": [
+      { "name": "White", "value": "#FFFFFF", "index": 1 }
+    ]
+  },
+  "stateColors": {
+    "info": [
+      { "name": "Info Light", "value": "#E7F2F8", "index": 1 },
+      { "name": "Info Medium", "value": "#B6D9EB", "index": 2 },
+      { "name": "Info Dark", "value": "#0D82BD", "index": 3 }
+    ],
+    "success": [
+      { "name": "Success Light", "value": "#E8F5ED", "index": 1 },
+      { "name": "Success Medium", "value": "#B7E6C3", "index": 2 },
+      { "name": "Success Dark", "value": "#28A545", "index": 3 }
+    ],
+    "warning": [
+      { "name": "Warning Light", "value": "#FFF8DC", "index": 1 },
+      { "name": "Warning Medium", "value": "#FFE8A8", "index": 2 },
+      { "name": "Warning Dark", "value": "#FFC107", "index": 3 }
+    ],
+    "error": [
+      { "name": "Error Light", "value": "#F8D7DA", "index": 1 },
+      { "name": "Error Medium", "value": "#F5C6CB", "index": 2 },
+      { "name": "Error Dark", "value": "#DC3545", "index": 3 }
+    ]
+  },
+  "supportColors": {
+    "blue": [
+      { "name": "Blue 100", "value": "#DBF5F6", "index": 1 },
+      { "name": "Blue 200", "value": "#ABE8EA", "index": 2 },
+      { "name": "Blue 300", "value": "#7BDBDD", "index": 3 },
+      { "name": "Blue 400", "value": "#4BCED1", "index": 4 },
+      { "name": "Blue 500", "value": "#349EA0", "index": 5 },
+      { "name": "Blue 600", "value": "#1D6F70", "index": 6 },
+      { "name": "Blue 700", "value": "#063F3F", "index": 7 }
+    ],
+    "green": [
+      { "name": "Green 100", "value": "#D8F7DF", "index": 1 },
+      { "name": "Green 200", "value": "#A3EDAC", "index": 2 },
+      { "name": "Green 300", "value": "#6FE284", "index": 3 },
+      { "name": "Green 400", "value": "#3AD860", "index": 4 },
+      { "name": "Green 500", "value": "#28A545", "index": 5 },
+      { "name": "Green 600", "value": "#15722B", "index": 6 },
+      { "name": "Green 700", "value": "#033F10", "index": 7 }
+    ],
+    "pink": [
+      { "name": "Pink 100", "value": "#FFDBEA", "index": 1 },
+      { "name": "Pink 200", "value": "#FFACCE", "index": 2 },
+      { "name": "Pink 300", "value": "#FF7CB2", "index": 3 },
+      { "name": "Pink 400", "value": "#FF4D96", "index": 4 },
+      { "name": "Pink 500", "value": "#C83371", "index": 5 },
+      { "name": "Pink 600", "value": "#901A4D", "index": 6 },
+      { "name": "Pink 700", "value": "#590028", "index": 7 }
+    ],
+    "yellow": [
+      { "name": "Yellow 100", "value": "#FFF6D9", "index": 1 },
+      { "name": "Yellow 200", "value": "#FFEAA6", "index": 2 },
+      { "name": "Yellow 300", "value": "#FFDE73", "index": 3 },
+      { "name": "Yellow 400", "value": "#FFD240", "index": 4 },
+      { "name": "Yellow 500", "value": "#C8A22B", "index": 5 },
+      { "name": "Yellow 600", "value": "#907215", "index": 6 },
+      { "name": "Yellow 700", "value": "#594200", "index": 7 }
+    ]
+  },
+  "transparencies": {
+    "white": [
+      { "name": "White 10%", "value": "rgba(255, 255, 255, 0.10)", "opacity": 0.1 },
+      { "name": "White 20%", "value": "rgba(255, 255, 255, 0.20)", "opacity": 0.2 },
+      { "name": "White 40%", "value": "rgba(255, 255, 255, 0.40)", "opacity": 0.4 },
+      { "name": "White 70%", "value": "rgba(255, 255, 255, 0.70)", "opacity": 0.7 }
+    ],
+    "black": [
+      { "name": "Black 10%", "value": "rgba(0, 0, 0, 0.10)", "opacity": 0.1 },
+      { "name": "Black 20%", "value": "rgba(0, 0, 0, 0.20)", "opacity": 0.2 },
+      { "name": "Black 60%", "value": "rgba(0, 0, 0, 0.60)", "opacity": 0.6 }
+    ]
+  }
+}

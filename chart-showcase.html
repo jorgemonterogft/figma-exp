@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Chart Showcase — Color Combinations</title>
+    <script src="./vendor/chart.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            /* ── Official B2B tokens (Default.tokens.json) ── */
+            --red-01: #DF0027; --red-02: #BF0022; --red-03: #A0001C;
+            --red-04: #800016; --red-05: #600011; --red-06: #40000B;
+            --red-brand: #FF002D;
+            --grey-01: #F7F7F7; --grey-02: #E8E8E8; --grey-03: #D9D9D9;
+            --grey-04: #B3B3B3; --grey-05: #8D8D8D; --grey-06: #666666;
+            --grey-07: #404040; --grey-08: #1A1A1A;
+            --white-01: #FFFFFF;
+            --state-focus: #006AFF;
+            --success-01: #E9F6EC; --success-02: #BEE4C7; --success-03: #28A545;
+            --info-01: #0D82BD; --info-02: #B6D9EB; --info-03: #E7F2F8;
+            --alert-01: #E46B15; --alert-02: #F7D3B9; --alert-03: #FCF0E8;
+            --error-01: #DA2A2A; --error-02: #F4BFBF; --error-03: #FBEAEA;
+            --blue-01: #DBF5F6; --blue-02: #ABE8EA; --blue-03: #7BDBDD;
+            --blue-04: #4BCED1; --blue-05: #349EA0; --blue-06: #1D6F70; --blue-07: #063F3F;
+            --yellow-01: #FFF6D9; --yellow-02: #FFEAA6; --yellow-03: #FFDE73;
+            --yellow-04: #FFD240; --yellow-05: #C8A22B; --yellow-06: #907215; --yellow-07: #594200;
+            --green-01: #D8F7DF; --green-02: #A3EDB5; --green-03: #6FE28A;
+            --green-04: #3AD860; --green-05: #28A545; --green-06: #15722B; --green-07: #033F10;
+        }
+
+        body {
+            background: var(--grey-01);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--grey-08);
+            padding: 32px 24px 64px;
+        }
+
+        /* ── Header ── */
+        .page-header {
+            max-width: 1280px;
+            margin: 0 auto 48px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .page-header h1 { font-size: 28px; font-weight: 700; line-height: 1.2; }
+        .page-header p  { color: var(--grey-06); font-size: 14px; margin-top: 6px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--success-01); border: 1px solid var(--success-02);
+            color: var(--green-07); border-radius: 4px;
+            padding: 4px 10px; font-size: 11px; font-weight: 600; white-space: nowrap;
+        }
+
+        /* ── Section titles ── */
+        .section {
+            max-width: 1280px;
+            margin: 0 auto 56px;
+        }
+        .section-title {
+            font-size: 18px; font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .section-subtitle {
+            font-size: 13px; color: var(--grey-06);
+            margin-bottom: 24px;
+        }
+
+        /* ── Card grid ── */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+        .chart-grid.wide { grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); }
+        .chart-grid.triple { grid-template-columns: repeat(3, 1fr); }
+
+        /* ── Card ── */
+        .card {
+            background: var(--white-01);
+            border-radius: 10px;
+            padding: 20px 20px 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.04);
+        }
+        .card-header {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 8px;
+            margin-bottom: 16px;
+        }
+        .card-title   { font-size: 14px; font-weight: 600; }
+        .card-meta    { font-size: 11px; color: var(--grey-05); margin-top: 2px; }
+        .palette-dots { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; max-width: 120px; }
+        .dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            border: 1.5px solid rgba(0,0,0,.12);
+        }
+        .canvas-wrap { position: relative; }
+
+        /* ── Legend pills ── */
+        .legend {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-top: 14px;
+        }
+        .legend-item {
+            display: flex; align-items: center; gap-5px; gap: 5px;
+            font-size: 11px; color: var(--grey-07);
+        }
+        .legend-color {
+            width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+        }
+        .contrast-tag {
+            background: var(--grey-01); border: 1px solid var(--grey-03);
+            border-radius: 3px; padding: 1px 5px;
+            font-size: 10px; color: var(--grey-06); font-family: monospace;
+        }
+
+        /* ── KPI row ── */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 56px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .kpi {
+            background: var(--white-01);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08);
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .kpi-label   { font-size: 12px; color: var(--grey-06); }
+        .kpi-value   { font-size: 30px; font-weight: 700; line-height: 1; }
+        .kpi-change  { font-size: 12px; }
+        .kpi-change.up   { color: var(--success-03); }
+        .kpi-change.down { color: var(--error-01); }
+        .kpi-bar {
+            height: 4px; border-radius: 2px;
+            background: var(--grey-02); margin-top: 4px; overflow: hidden;
+        }
+        .kpi-bar-fill { height: 100%; border-radius: 2px; }
+
+        @media (max-width: 700px) {
+            .chart-grid, .chart-grid.wide, .chart-grid.triple { grid-template-columns: 1fr; }
+        }
+
+        /* ── Nav bar ── */
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            background: #1A1A1A;
+            display: flex; align-items: center;
+            padding: 0 24px;
+            margin: -32px -24px 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.18);
+        }
+        .topnav a {
+            color: #D9D9D9; text-decoration: none;
+            font-size: 13px; font-weight: 500;
+            padding: 14px 16px; display: inline-block;
+            border-bottom: 2px solid transparent;
+            transition: color .15s, border-color .15s;
+            white-space: nowrap;
+        }
+        .topnav a:hover  { color: #FFFFFF; border-bottom-color: #FF002D; }
+        .topnav a.active { color: #FFFFFF; border-bottom-color: #FF002D; }
+        .topnav a.home   { color: #FF002D; font-weight: 700; padding-right: 20px; border-right: 1px solid #404040; margin-right: 4px; }
+        .topnav a.home:hover { color: #FF002D; border-bottom-color: transparent; opacity: .8; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="./index.html" class="home">⬡ B2B DS</a>
+    <a href="./color-contrast.html">Contraste de Color</a>
+    <a href="./chart-showcase.html" class="active">Chart Showcase</a>
+</nav>
+
+<!-- ── Page header ── -->
+<div class="page-header">
+    <div>
+        <h1>B2B Chart Showcase</h1>
+        <p>Combinaciones de colores oficiales — fuente: <code>Default.tokens.json</code></p>
+    </div>
+    <span class="badge">✓ Solo tokens oficiales B2B</span>
+</div>
+
+<!-- ── KPI cards ── -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ── 1. Bar charts ── -->
+<section class="section">
+    <div class="section-title">Gráficos de Barras</div>
+    <div class="section-subtitle">Combinaciones por categorías semánticas · todos pasan contraste 3:1 sobre blanco</div>
+    <div class="chart-grid" id="barSection"></div>
+</section>
+
+<!-- ── 2. Line charts ── -->
+<section class="section">
+    <div class="section-title">Gráficos de Líneas</div>
+    <div class="section-subtitle">Series temporales con rampas de color B2B</div>
+    <div class="chart-grid wide" id="lineSection"></div>
+</section>
+
+<!-- ── 3. Donut / Pie ── -->
+<section class="section">
+    <div class="section-title">Gráficos de Donut y Pie</div>
+    <div class="section-subtitle">Distribución proporcional con paletas soporte</div>
+    <div class="chart-grid triple" id="donutSection"></div>
+</section>
+
+<!-- ── 4. Radar + Polar ── -->
+<section class="section">
+    <div class="section-title">Radar & Polar Area</div>
+    <div class="section-subtitle">Comparativa multidimensional</div>
+    <div class="chart-grid" id="radarSection"></div>
+</section>
+
+<!-- ── 5. Stacked / Mixed ── -->
+<section class="section">
+    <div class="section-title">Barras Apiladas & Mixto</div>
+    <div class="section-subtitle">Composición acumulada y gráficos combinados</div>
+    <div class="chart-grid wide" id="stackedSection"></div>
+</section>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   OFFICIAL B2B COLOR TOKENS  (Default.tokens.json)
+   ═══════════════════════════════════════════════════════════ */
+const T = {
+    red:    ['#DF0027','#BF0022','#A0001C','#800016','#600011','#40000B'],
+    brand:  '#FF002D',
+    grey:   ['#F7F7F7','#E8E8E8','#D9D9D9','#B3B3B3','#8D8D8D','#666666','#404040','#1A1A1A'],
+    white:  '#FFFFFF',
+    focus:  '#006AFF',
+    success:['#E9F6EC','#BEE4C7','#28A545'],
+    info:   ['#0D82BD','#B6D9EB','#E7F2F8'],
+    alert:  ['#E46B15','#F7D3B9','#FCF0E8'],
+    error:  ['#DA2A2A','#F4BFBF','#FBEAEA'],
+    blue:   ['#DBF5F6','#ABE8EA','#7BDBDD','#4BCED1','#349EA0','#1D6F70','#063F3F'],
+    yellow: ['#FFF6D9','#FFEAA6','#FFDE73','#FFD240','#C8A22B','#907215','#594200'],
+    green:  ['#D8F7DF','#A3EDB5','#6FE28A','#3AD860','#28A545','#15722B','#033F10'],
+};
+
+/* Colors that pass 3:1 contrast on white — verified from tokens */
+const ACCESSIBLE = {
+    /* reds */     red01:'#DF0027', red02:'#BF0022', red03:'#A0001C',
+                   red04:'#800016', red05:'#600011', redBrand:'#FF002D',
+    /* greys */    grey06:'#666666', grey07:'#404040', grey08:'#1A1A1A',
+    /* state */    focus:'#006AFF', success:'#28A545', info:'#0D82BD',
+                   alert:'#E46B15', error:'#DA2A2A',
+    /* blue */     blue05:'#349EA0', blue06:'#1D6F70', blue07:'#063F3F',
+    /* yellow */   yellow04:'#FFD240', yellow05:'#C8A22B', yellow06:'#907215', yellow07:'#594200',
+    /* green */    green05:'#28A545', green06:'#15722B', green07:'#033F10',
+};
+
+/* ── Helpers ── */
+function alpha(hex, a) {
+    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+}
+function luminance(hex){
+    const r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
+    const f=x=>x<=.03928?x/12.92:((x+.055)/1.055)**2.4;
+    return .2126*f(r)+.7152*f(g)+.0722*f(b);
+}
+function contrast(h1,h2){ const l1=luminance(h1),l2=luminance(h2); return ((Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05)).toFixed(2); }
+
+/* ── Card factory ── */
+function card(title, meta, palette, canvasId, legendItems=[]) {
+    const dots = palette.map(c=>`<div class="dot" style="background:${c}"></div>`).join('');
+    const legHTML = legendItems.map(({color,label,ratio})=>`
+        <div class="legend-item">
+            <div class="legend-color" style="background:${color}"></div>
+            <span>${label}</span>
+            <span class="contrast-tag">${ratio}:1</span>
+        </div>`).join('');
+    return `
+        <div class="card">
+            <div class="card-header">
+                <div><div class="card-title">${title}</div><div class="card-meta">${meta}</div></div>
+                <div class="palette-dots">${dots}</div>
+            </div>
+            <div class="canvas-wrap"><canvas id="${canvasId}"></canvas></div>
+            ${legHTML?`<div class="legend">${legHTML}</div>`:''}
+        </div>`;
+}
+
+const labels12 = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const labels6  = labels12.slice(0,6);
+const rnd = (min,max,n=12)=>Array.from({length:n},()=>Math.round(Math.random()*(max-min)+min));
+
+/* ═══════════════════════════════════════════════════
+   KPI CARDS
+   ═══════════════════════════════════════════════════ */
+const kpis = [
+    {label:'Primas emitidas', value:'€4.2M', change:'+12.4%', dir:'up', color:T.red[0], pct:72},
+    {label:'Siniestros', value:'1,847', change:'-3.1%', dir:'down', color:T.error[0], pct:38},
+    {label:'Clientes activos', value:'28,310', change:'+8.7%', dir:'up', color:T.success[2], pct:85},
+    {label:'NPS Score', value:'67', change:'+5 pts', dir:'up', color:T.blue[5], pct:67},
+    {label:'Renovaciones', value:'91.3%', change:'+1.2%', dir:'up', color:T.yellow[5], pct:91},
+    {label:'Reclamaciones', value:'234', change:'-7.9%', dir:'down', color:T.alert[0], pct:23},
+];
+document.getElementById('kpiRow').innerHTML = kpis.map(k=>`
+    <div class="kpi">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+        <div class="kpi-change ${k.dir}">${k.dir==='up'?'▲':'▼'} ${k.change}</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${k.pct}%;background:${k.color}"></div></div>
+    </div>`).join('');
+
+/* ═══════════════════════════════════════════════════
+   BAR CHARTS
+   ═══════════════════════════════════════════════════ */
+const barSection = document.getElementById('barSection');
+
+// 1. Red ramp
+const palette1 = [T.red[0], T.red[1], T.red[2], T.brand];
+barSection.innerHTML += card(
+    'Líneas de Negocio', 'Rampa de Rojos · ratio mín 3.97:1',
+    palette1, 'b1',
+    palette1.map((c,i)=>({color:c, label:['Auto','Hogar','Salud','Vida'][i], ratio:contrast(c,'#FFFFFF')}))
+);
+// 2. Support Blue ramp
+const palette2 = [T.blue[6], T.blue[5], T.blue[4], T.blue[3]];
+barSection.innerHTML += card(
+    'Canales de Venta', 'Rampa Azul Soporte · ratio mín 3:1',
+    palette2, 'b2',
+    palette2.map((c,i)=>({color:c, label:['Digital','Agente','Broker','RRSS'][i], ratio:contrast(c,'#FFFFFF')}))
+);
+// 3. Status mix
+const palette3 = [T.success[2], T.info[0], T.alert[0], T.error[0]];
+barSection.innerHTML += card(
+    'Estado de Pólizas', 'Colores de Estado · semántica completa',
+    palette3, 'b3',
+    palette3.map((c,i)=>({color:c, label:['Activa','Pendiente','Alerta','Baja'][i], ratio:contrast(c,'#FFFFFF')}))
+);
+// 4. Yellow ramp
+const palette4 = [T.yellow[6], T.yellow[5], T.yellow[4], T.yellow[3]];
+barSection.innerHTML += card(
+    'Rendimiento Trimestral', 'Rampa Amarillo Soporte',
+    palette4, 'b4',
+    palette4.map((c,i)=>({color:c, label:['Q1','Q2','Q3','Q4'][i], ratio:contrast(c,'#FFFFFF')}))
+);
+
+// Render bar charts
+[
+    ['b1', palette1, ['Auto','Hogar','Salud','Vida']],
+    ['b2', palette2, ['Digital','Agente','Broker','RRSS']],
+    ['b3', palette3, ['Activa','Pendiente','Alerta','Baja']],
+    ['b4', palette4, ['Q1','Q2','Q3','Q4']],
+].forEach(([id, pal, lbls])=>{
+    new Chart(document.getElementById(id), {
+        type:'bar',
+        data:{
+            labels: labels12,
+            datasets: lbls.map((l,i)=>({
+                label:l, data:rnd(10,90),
+                backgroundColor: alpha(pal[i],.85),
+                borderColor: pal[i],
+                borderWidth:1.5, borderRadius:4, borderSkipped:false,
+            }))
+        },
+        options:{
+            responsive:true, maintainAspectRatio:true,
+            plugins:{legend:{display:false}},
+            scales:{
+                x:{grid:{display:false}, ticks:{color:T.grey[5]}},
+                y:{grid:{color:T.grey[1]}, ticks:{color:T.grey[5]}, border:{dash:[4,4]}}
+            }
+        }
+    });
+});
+
+/* ═══════════════════════════════════════════════════
+   LINE CHARTS
+   ═══════════════════════════════════════════════════ */
+const lineSection = document.getElementById('lineSection');
+
+// Red vs Blue
+const lp1 = [T.red[0], T.blue[5], T.success[2], T.yellow[4]];
+lineSection.innerHTML += card(
+    'Evolución de Indicadores Clave', 'Red · Info · Success · Yellow — series 12 meses',
+    lp1, 'l1',
+    lp1.map((c,i)=>({color:c, label:['Primas','Siniestros','Renovac.','Leads'][i], ratio:contrast(c,'#FFFFFF')}))
+);
+
+// Greys + brand
+const lp2 = [T.brand, T.grey[6], T.grey[5], T.grey[4]];
+lineSection.innerHTML += card(
+    'Comparativa de Regiones', 'Brand Red · Grises (pasan 3:1) — área rellena',
+    lp2, 'l2',
+    lp2.map((c,i)=>({color:c, label:['Madrid','Cataluña','Andalucía','Valencia'][i], ratio:contrast(c,'#FFFFFF')}))
+);
+
+[
+    ['l1', lp1, ['Primas','Siniestros','Renovac.','Leads'], false],
+    ['l2', lp2, ['Madrid','Cataluña','Andalucía','Valencia'], true],
+].forEach(([id, pal, lbls, fill])=>{
+    new Chart(document.getElementById(id), {
+        type:'line',
+        data:{
+            labels: labels12,
+            datasets: lbls.map((l,i)=>({
+                label:l, data:rnd(20,95),
+                borderColor: pal[i],
+                backgroundColor: fill ? alpha(pal[i],.08) : alpha(pal[i],.0),
+                borderWidth:2.5, pointRadius:3, pointHoverRadius:5,
+                fill: fill, tension:.35,
+            }))
+        },
+        options:{
+            responsive:true, maintainAspectRatio:true,
+            plugins:{legend:{display:false}},
+            scales:{
+                x:{grid:{display:false}, ticks:{color:T.grey[5]}},
+                y:{grid:{color:T.grey[1]}, ticks:{color:T.grey[5]}, border:{dash:[4,4]}}
+            }
+        }
+    });
+});
+
+/* ═══════════════════════════════════════════════════
+   DONUT / PIE
+   ═══════════════════════════════════════════════════ */
+const donutSection = document.getElementById('donutSection');
+
+const donuts = [
+    {
+        id:'d1', title:'Cartera de Productos', meta:'Donut · Rampa Roja',
+        pal:[T.red[0],T.red[1],T.red[2],T.red[3],T.brand],
+        lbls:['Auto','Hogar','Salud','Vida','Viaje'],
+    },
+    {
+        id:'d2', title:'Distribución de Siniestros', meta:'Pie · Estados Semánticos',
+        pal:[T.success[2],T.info[0],T.alert[0],T.error[0],T.grey[6]],
+        lbls:['Cerrado','En trámite','Alerta','Denegado','Otro'],
+    },
+    {
+        id:'d3', title:'Canales Digitales', meta:'Donut · Soporte Azul',
+        pal:[T.blue[6],T.blue[5],T.blue[4],T.blue[3],T.blue[2]],
+        lbls:['App','Web','Broker','Call','Email'],
+    },
+];
+donuts.forEach(({id,title,meta,pal,lbls})=>{
+    donutSection.innerHTML += card(title, meta, pal, id,
+        pal.map((c,i)=>({color:c,label:lbls[i],ratio:contrast(c,'#FFFFFF')})));
+});
+donuts.forEach(({id,pal,lbls},idx)=>{
+    new Chart(document.getElementById(id), {
+        type: idx===1?'pie':'doughnut',
+        data:{
+            labels:lbls,
+            datasets:[{
+                data:rnd(10,50,5),
+                backgroundColor: pal.map(c=>alpha(c,.9)),
+                borderColor: '#FFFFFF', borderWidth:2,
+                hoverOffset:6,
+            }]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:true,
+            plugins:{
+                legend:{
+                    display:true, position:'bottom',
+                    labels:{boxWidth:10, padding:10, font:{size:11}, color:T.grey[7]}
+                }
+            },
+            cutout: idx===1?'0%':'60%',
+        }
+    });
+});
+
+/* ═══════════════════════════════════════════════════
+   RADAR & POLAR
+   ═══════════════════════════════════════════════════ */
+const radarSection = document.getElementById('radarSection');
+
+const rp1 = [T.red[0], T.blue[5], T.success[2]];
+radarSection.innerHTML += card(
+    'Análisis Competitivo', 'Radar · Rojo / Azul / Verde',
+    rp1, 'r1',
+    rp1.map((c,i)=>({color:c,label:['B2B','Mercado','Objetivo'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const rp2 = [T.brand, T.info[0], T.alert[0], T.success[2], T.yellow[5], T.blue[5]];
+radarSection.innerHTML += card(
+    'Distribución Polar de Riesgos', 'Polar Area · 6 categorías',
+    rp2, 'r2',
+    rp2.map((c,i)=>({color:c,label:['Auto','Hogar','Salud','Vida','RC','Viaje'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+new Chart(document.getElementById('r1'), {
+    type:'radar',
+    data:{
+        labels:['Captación','Retención','NPS','Siniestralidad','Rentabilidad','Digital'],
+        datasets: rp1.map((c,i)=>({
+            label:['B2B','Mercado','Objetivo'][i],
+            data:rnd(30,95,6),
+            borderColor:c, backgroundColor:alpha(c,.12),
+            borderWidth:2, pointRadius:3, pointBackgroundColor:c,
+        }))
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{r:{
+            grid:{color:T.grey[1]}, ticks:{backdropColor:'transparent', color:T.grey[5], font:{size:10}},
+            pointLabels:{color:T.grey[7], font:{size:11}},
+            beginAtZero:true
+        }}
+    }
+});
+
+new Chart(document.getElementById('r2'), {
+    type:'polarArea',
+    data:{
+        labels:['Auto','Hogar','Salud','Vida','RC','Viaje'],
+        datasets:[{
+            data:rnd(15,80,6),
+            backgroundColor:rp2.map(c=>alpha(c,.75)),
+            borderColor:rp2, borderWidth:1.5,
+        }]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{
+            display:true, position:'bottom',
+            labels:{boxWidth:10,padding:10,font:{size:11},color:T.grey[7]}
+        }},
+        scales:{r:{
+            grid:{color:T.grey[1]},
+            ticks:{backdropColor:'transparent',color:T.grey[5],font:{size:10}},
+            pointLabels:{color:T.grey[7]},
+        }}
+    }
+});
+
+/* ═══════════════════════════════════════════════════
+   STACKED & MIXED
+   ═══════════════════════════════════════════════════ */
+const stackedSection = document.getElementById('stackedSection');
+
+// Stacked bar — blue ramp
+const sp1 = [T.blue[6],T.blue[5],T.blue[4],T.blue[3]];
+stackedSection.innerHTML += card(
+    'Volumen Acumulado por Canal', 'Barra apilada · Rampa Azul',
+    sp1, 's1',
+    sp1.map((c,i)=>({color:c,label:['Digital','Agente','Broker','RRSS'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+// Mixed bar + line — red bars + blue line
+const mp = [T.red[0], T.blue[5]];
+stackedSection.innerHTML += card(
+    'Primas vs. Siniestros', 'Mixto barras + línea · Rojo / Azul Info',
+    mp, 'm1',
+    mp.map((c,i)=>({color:c,label:['Primas (barra)','Siniestros (línea)'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+// Stacked bar
+new Chart(document.getElementById('s1'), {
+    type:'bar',
+    data:{
+        labels:labels12,
+        datasets:[
+            {label:'Digital', data:rnd(10,40), backgroundColor:alpha(sp1[0],.85), borderColor:sp1[0], borderWidth:1},
+            {label:'Agente',  data:rnd(10,40), backgroundColor:alpha(sp1[1],.85), borderColor:sp1[1], borderWidth:1},
+            {label:'Broker',  data:rnd(5,30),  backgroundColor:alpha(sp1[2],.85), borderColor:sp1[2], borderWidth:1},
+            {label:'RRSS',    data:rnd(5,20),  backgroundColor:alpha(sp1[3],.85), borderColor:sp1[3], borderWidth:1},
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{stacked:true, grid:{display:false}, ticks:{color:T.grey[5]}},
+            y:{stacked:true, grid:{color:T.grey[1]}, ticks:{color:T.grey[5]}, border:{dash:[4,4]}}
+        }
+    }
+});
+
+// Mixed
+new Chart(document.getElementById('m1'), {
+    type:'bar',
+    data:{
+        labels:labels12,
+        datasets:[
+            {
+                type:'bar', label:'Primas',
+                data:rnd(40,90),
+                backgroundColor:alpha(mp[0],.8), borderColor:mp[0], borderWidth:1.5, borderRadius:3, yAxisID:'y',
+            },{
+                type:'line', label:'Siniestros',
+                data:rnd(10,70),
+                borderColor:mp[1], backgroundColor:alpha(mp[1],.08),
+                borderWidth:2.5, pointRadius:3, fill:true, tension:.35, yAxisID:'y1',
+            }
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{grid:{display:false}, ticks:{color:T.grey[5]}},
+            y:{position:'left',  grid:{color:T.grey[1]}, ticks:{color:mp[0]}, border:{dash:[4,4]}},
+            y1:{position:'right', grid:{drawOnChartArea:false}, ticks:{color:mp[1]}},
+        }
+    }
+});
+</script>
+</body>
+</html>

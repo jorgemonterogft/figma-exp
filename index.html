@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figma Agent Lab — Experimentos</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f5f5f5;
+            --surface: #ffffff;
+            --text: #1a1a1a;
+            --muted: #666666;
+            --border: #d9d9d9;
+            --focus: #006aff;
+            --danger: #da2a2a;
+            --brand: #ff002d;
+            --ok-bg: #e9f6ec;
+            --ok-text: #15722b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .shell {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 32px 20px 72px;
+        }
+
+        .hidden { display: none !important; }
+
+        .auth-wrap {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: min(460px, 100%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.08);
+            padding: 28px;
+        }
+
+        .auth-kicker {
+            display: inline-block;
+            font-size: 11px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 22px;
+        }
+
+        .field-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .password-input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 14px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .password-input:focus {
+            border-color: var(--focus);
+            box-shadow: 0 0 0 3px rgba(0, 106, 255, .15);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform .1s, box-shadow .15s, background .15s;
+        }
+
+        .btn:active { transform: translateY(1px); }
+
+        .btn-primary {
+            background: var(--text);
+            color: #fff;
+        }
+
+        .btn-primary:hover { box-shadow: 0 6px 16px rgba(26,26,26,.2); }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .auth-error {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 18px;
+        }
+
+        .auth-note {
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .title {
+            font-size: 32px;
+            line-height: 1.15;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .pill {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid #bee4c7;
+            border-radius: 999px;
+            background: var(--ok-bg);
+            color: var(--ok-text);
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .list-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-bottom: 12px;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--brand);
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            padding: 18px;
+            transition: border-color .15s, transform .15s, box-shadow .15s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card:hover {
+            border-color: var(--focus);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 106, 255, .12);
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .card-name {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .badge {
+            font-size: 11px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 8px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <main id="auth-screen" class="auth-wrap">
+        <section class="auth-card" aria-labelledby="auth-title">
+            <span class="auth-kicker">Figma Agent Lab</span>
+            <h1 id="auth-title" class="auth-title">Acceso inicial</h1>
+            <p class="auth-subtitle">Introduce la contraseña para entrar a la home de experimentos.</p>
+
+            <form id="auth-form">
+                <label class="field-label" for="password">Contraseña</label>
+                <input id="password" name="password" class="password-input" type="password" autocomplete="current-password" required>
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                    <button type="button" id="show-hint" class="btn btn-secondary">Ver pista</button>
+                </div>
+                <p id="auth-error" class="auth-error" aria-live="polite"></p>
+            </form>
+
+            <p id="auth-note" class="auth-note">Esta protección es para pruebas locales (cliente), no seguridad de producción.</p>
+        </section>
+    </main>
+
+    <main id="home-screen" class="shell hidden">
+        <header class="header">
+            <div>
+                <h1 class="title">Experimentos</h1>
+                <p class="subtitle">Repositorio de pruebas para diseño y prototipos Figma.</p>
+            </div>
+            <div>
+                <span class="pill">Acceso activo</span>
+                <button id="logout" class="btn btn-secondary" style="margin-left:8px;">Cerrar sesión</button>
+            </div>
+        </header>
+
+        <h2 class="list-title">Listado de experimentos</h2>
+        <section class="grid" id="experiments-list"></section>
+    </main>
+
+    <script>
+        const AUTH_STORAGE_KEY = "figma-agent-auth";
+        const AUTH_SALT = "figma-agent-lab";
+        const ACCESS_PASSWORD_HASH = "6d5dce2ff41d21d3f74b31e8bb1a6a83fd3f633cf20c9eaee47c0414b2fd532a";
+
+        const experiments = [
+            {
+                name: "Análisis de Contraste",
+                href: "./color-contrast.html",
+                type: "HTML",
+                description: "Paleta B2B y validación WCAG contra fondo blanco.",
+                meta: "Contraste · WCAG 2.1"
+            },
+            {
+                name: "Chart Showcase",
+                href: "./chart-showcase.html",
+                type: "Chart.js",
+                description: "Combinaciones visuales para barras, líneas, donut y más.",
+                meta: "Visualización de datos"
+            },
+            {
+                name: "Location Selector Demo",
+                href: "./location-selector/location-selector.demo.html",
+                type: "Angular",
+                description: "Demo standalone del componente de selección de ubicación.",
+                meta: "Componente UI"
+            },
+            {
+                name: "Tokens de color (JSON)",
+                href: "./b2b-colors.json",
+                type: "JSON",
+                description: "Salida plana de colores para scripting y pruebas.",
+                meta: "Datos"
+            }
+        ];
+
+        const authScreen = document.getElementById("auth-screen");
+        const homeScreen = document.getElementById("home-screen");
+        const authForm = document.getElementById("auth-form");
+        const authError = document.getElementById("auth-error");
+        const authNote = document.getElementById("auth-note");
+        const showHintBtn = document.getElementById("show-hint");
+        const logoutBtn = document.getElementById("logout");
+        const experimentsList = document.getElementById("experiments-list");
+
+        function renderExperiments() {
+            experimentsList.innerHTML = "";
+            experiments.forEach((experiment) => {
+                const item = document.createElement("a");
+                item.className = "card";
+                item.href = experiment.href;
+                item.innerHTML = `
+                    <div class="card-head">
+                        <span class="card-name">${experiment.name}</span>
+                        <span class="badge">${experiment.type}</span>
+                    </div>
+                    <p class="card-desc">${experiment.description}</p>
+                    <p class="card-meta">${experiment.meta}</p>
+                `;
+                experimentsList.appendChild(item);
+            });
+        }
+
+        function showHome() {
+            authScreen.classList.add("hidden");
+            homeScreen.classList.remove("hidden");
+            renderExperiments();
+        }
+
+        function showAuth() {
+            homeScreen.classList.add("hidden");
+            authScreen.classList.remove("hidden");
+        }
+
+        function isAuthenticated() {
+            return sessionStorage.getItem(AUTH_STORAGE_KEY) === "ok";
+        }
+
+        async function sha256(text) {
+            const data = new TextEncoder().encode(text);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+        }
+
+        authForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const password = new FormData(authForm).get("password");
+            const passwordHash = await sha256(`${password}${AUTH_SALT}`);
+
+            if (passwordHash === ACCESS_PASSWORD_HASH) {
+                sessionStorage.setItem(AUTH_STORAGE_KEY, "ok");
+                authError.textContent = "";
+                showHome();
+                return;
+            }
+
+            authError.textContent = "Contraseña incorrecta.";
+        });
+
+        showHintBtn.addEventListener("click", () => {
+            authNote.textContent = "Pista: incluye 'figma' y el año actual de este proyecto.";
+        });
+
+        logoutBtn.addEventListener("click", () => {
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            showAuth();
+        });
+
+        if (isAuthenticated()) {
+            showHome();
+        } else {
+            showAuth();
+        }
+    </script>
+</body>
+</html>
