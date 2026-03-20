@@ -146,6 +146,41 @@
         }
         .kpi-bar-fill { height: 100%; border-radius: 2px; }
 
+        /* ── Chart tabs ── */
+        .chart-tabs-wrap {
+            max-width: 1280px;
+            margin: 0 auto 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .chart-tabs {
+            display: inline-flex;
+            gap: 8px;
+            min-width: max-content;
+        }
+        .chart-tab {
+            border: 1px solid var(--grey-03);
+            background: var(--white-01);
+            color: var(--grey-07);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .chart-tab:hover {
+            border-color: var(--red-brand);
+            color: var(--grey-08);
+        }
+        .chart-tab.active {
+            background: var(--red-brand);
+            border-color: var(--red-brand);
+            color: var(--white-01);
+        }
+
+        .section.is-hidden { display: none; }
+
         @media (max-width: 700px) {
             .chart-grid, .chart-grid.wide, .chart-grid.triple { grid-template-columns: 1fr; }
         }
@@ -193,39 +228,59 @@
 <!-- ── KPI cards ── -->
 <div class="kpi-row" id="kpiRow"></div>
 
+<!-- ── Tabs by chart type ── -->
+<div class="chart-tabs-wrap" aria-label="Filtro de tipos de gráfico">
+    <div class="chart-tabs" id="chartTabs">
+        <button type="button" class="chart-tab active" data-tab="all">Todos</button>
+        <button type="button" class="chart-tab" data-tab="bar">Barras</button>
+        <button type="button" class="chart-tab" data-tab="line">Líneas</button>
+        <button type="button" class="chart-tab" data-tab="donut">Donut/Pie</button>
+        <button type="button" class="chart-tab" data-tab="radar">Radar/Polar</button>
+        <button type="button" class="chart-tab" data-tab="mixed">Mixtos</button>
+        <button type="button" class="chart-tab" data-tab="advanced">Avanzados</button>
+    </div>
+</div>
+
 <!-- ── 1. Bar charts ── -->
-<section class="section">
+<section class="section" data-section-tab="bar">
     <div class="section-title">Gráficos de Barras</div>
     <div class="section-subtitle">Combinaciones por categorías semánticas · todos pasan contraste 3:1 sobre blanco</div>
     <div class="chart-grid" id="barSection"></div>
 </section>
 
 <!-- ── 2. Line charts ── -->
-<section class="section">
+<section class="section" data-section-tab="line">
     <div class="section-title">Gráficos de Líneas</div>
     <div class="section-subtitle">Series temporales con rampas de color B2B</div>
     <div class="chart-grid wide" id="lineSection"></div>
 </section>
 
 <!-- ── 3. Donut / Pie ── -->
-<section class="section">
+<section class="section" data-section-tab="donut">
     <div class="section-title">Gráficos de Donut y Pie</div>
     <div class="section-subtitle">Distribución proporcional con paletas soporte</div>
     <div class="chart-grid triple" id="donutSection"></div>
 </section>
 
 <!-- ── 4. Radar + Polar ── -->
-<section class="section">
+<section class="section" data-section-tab="radar">
     <div class="section-title">Radar & Polar Area</div>
     <div class="section-subtitle">Comparativa multidimensional</div>
     <div class="chart-grid" id="radarSection"></div>
 </section>
 
 <!-- ── 5. Stacked / Mixed ── -->
-<section class="section">
+<section class="section" data-section-tab="mixed">
     <div class="section-title">Barras Apiladas & Mixto</div>
     <div class="section-subtitle">Composición acumulada y gráficos combinados</div>
     <div class="chart-grid wide" id="stackedSection"></div>
+</section>
+
+<!-- ── 6. Advanced Combinations ── -->
+<section class="section" data-section-tab="advanced">
+    <div class="section-title">Combinaciones Avanzadas</div>
+    <div class="section-subtitle">Máxima cobertura de variantes Chart.js con tokens B2B</div>
+    <div class="chart-grid wide" id="advancedSection"></div>
 </section>
 
 
@@ -314,6 +369,34 @@ document.getElementById('kpiRow').innerHTML = kpis.map(k=>`
         <div class="kpi-change ${k.dir}">${k.dir==='up'?'▲':'▼'} ${k.change}</div>
         <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${k.pct}%;background:${k.color}"></div></div>
     </div>`).join('');
+
+/* ═══════════════════════════════════════════════════
+   CHART TABS FILTER
+   ═══════════════════════════════════════════════════ */
+const chartTabs = Array.from(document.querySelectorAll('.chart-tab'));
+const chartSections = Array.from(document.querySelectorAll('.section[data-section-tab]'));
+
+function setActiveTab(tabValue) {
+    chartTabs.forEach(tab => {
+        const isActive = tab.dataset.tab === tabValue;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+    });
+
+    chartSections.forEach(section => {
+        const shouldShow = tabValue === 'all' || section.dataset.sectionTab === tabValue;
+        section.classList.toggle('is-hidden', !shouldShow);
+    });
+}
+
+chartTabs.forEach(tab => {
+    tab.setAttribute('role', 'tab');
+    tab.addEventListener('click', () => setActiveTab(tab.dataset.tab));
+});
+
+const tabsContainer = document.getElementById('chartTabs');
+tabsContainer.setAttribute('role', 'tablist');
+setActiveTab('all');
 
 /* ═══════════════════════════════════════════════════
    BAR CHARTS
@@ -611,6 +694,271 @@ new Chart(document.getElementById('m1'), {
             y:{position:'left',  grid:{color:T.grey[1]}, ticks:{color:mp[0]}, border:{dash:[4,4]}},
             y1:{position:'right', grid:{drawOnChartArea:false}, ticks:{color:mp[1]}},
         }
+    }
+});
+
+/* ═══════════════════════════════════════════════════
+   ADVANCED COMBINATIONS
+   ═══════════════════════════════════════════════════ */
+const advancedSection = document.getElementById('advancedSection');
+
+const ap1 = [T.red[0], T.blue[6], T.green[5], T.yellow[5]];
+advancedSection.innerHTML += card(
+    'Horizontal Grouped Bar', 'Barras horizontales agrupadas por segmento',
+    ap1, 'a1',
+    ap1.map((c,i)=>({color:c,label:['Empresas','Particulares','PYME','Canal Directo'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap2 = [T.red[1], T.blue[5], T.green[6], T.alert[0]];
+advancedSection.innerHTML += card(
+    '100% Stacked Bar', 'Barras apiladas al 100% por mes',
+    ap2, 'a2',
+    ap2.map((c,i)=>({color:c,label:['Auto','Hogar','Salud','Vida'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap3 = [T.red[0], T.blue[5], T.success[2]];
+advancedSection.innerHTML += card(
+    'Mixed: Bar + Line + Area', 'Ingresos y ratios con doble eje',
+    ap3, 'a3',
+    ap3.map((c,i)=>({color:c,label:['Ingresos','Objetivo','Margen'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap4 = [T.focus, T.info[0], T.yellow[5]];
+advancedSection.innerHTML += card(
+    'Stepped + Curved Lines', 'Comparativa de SLA con línea escalonada',
+    ap4, 'a4',
+    ap4.map((c,i)=>({color:c,label:['SLA real','SLA objetivo','Capacidad'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap5 = [T.blue[6], T.red[0]];
+advancedSection.innerHTML += card(
+    'Scatter + Trend Line', 'Nube de puntos con línea de tendencia',
+    ap5, 'a5',
+    ap5.map((c,i)=>({color:c,label:['Operaciones','Tendencia'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap6 = [T.success[2], T.alert[0], T.blue[5]];
+advancedSection.innerHTML += card(
+    'Bubble + Scatter', 'Combinación de volumen, riesgo y coste',
+    ap6, 'a6',
+    ap6.map((c,i)=>({color:c,label:['Volumen','Riesgo','Referencia'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap7 = [T.red[1], T.red[3], T.blue[5], T.blue[6]];
+advancedSection.innerHTML += card(
+    'Grouped + Stacked', 'Agrupado por stack y apilado por trimestre',
+    ap7, 'a7',
+    ap7.map((c,i)=>({color:c,label:['Q1-A','Q1-B','Q2-A','Q2-B'][i],ratio:contrast(c,'#FFFFFF')}))
+);
+
+const ap8 = [T.brand, T.grey[2]];
+advancedSection.innerHTML += card(
+    'Half Doughnut Gauge', 'Gauge semicircular para objetivo anual',
+    ap8, 'a8',
+    [{color:ap8[0],label:'Progreso',ratio:contrast(ap8[0],'#FFFFFF')},{color:ap8[1],label:'Pendiente',ratio:contrast('#666666','#FFFFFF')}]
+);
+
+new Chart(document.getElementById('a1'), {
+    type:'bar',
+    data:{
+        labels:['Auto','Hogar','Salud','Vida','Viaje'],
+        datasets:[
+            {label:'Empresas', data:rnd(20,95,5), backgroundColor:alpha(ap1[0],.82), borderColor:ap1[0], borderWidth:1.2},
+            {label:'Particulares', data:rnd(20,95,5), backgroundColor:alpha(ap1[1],.82), borderColor:ap1[1], borderWidth:1.2},
+            {label:'PYME', data:rnd(20,95,5), backgroundColor:alpha(ap1[2],.82), borderColor:ap1[2], borderWidth:1.2},
+            {label:'Canal Directo', data:rnd(20,95,5), backgroundColor:alpha(ap1[3],.82), borderColor:ap1[3], borderWidth:1.2},
+        ]
+    },
+    options:{
+        indexAxis:'y',
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{grid:{color:T.grey[1]}, ticks:{color:T.grey[5]}},
+            y:{grid:{display:false}, ticks:{color:T.grey[5]}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a2'), {
+    type:'bar',
+    data:{
+        labels:labels6,
+        datasets:[
+            {label:'Auto', data:[25,30,28,27,32,29], backgroundColor:alpha(ap2[0],.85), borderColor:ap2[0], borderWidth:1, stack:'s1'},
+            {label:'Hogar', data:[22,24,25,23,21,24], backgroundColor:alpha(ap2[1],.85), borderColor:ap2[1], borderWidth:1, stack:'s1'},
+            {label:'Salud', data:[18,20,19,22,20,18], backgroundColor:alpha(ap2[2],.85), borderColor:ap2[2], borderWidth:1, stack:'s1'},
+            {label:'Vida', data:[35,26,28,28,27,29], backgroundColor:alpha(ap2[3],.85), borderColor:ap2[3], borderWidth:1, stack:'s1'},
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{stacked:true, grid:{display:false}, ticks:{color:T.grey[5]}},
+            y:{stacked:true, min:0, max:100, ticks:{callback:v=>`${v}%`, color:T.grey[5]}, grid:{color:T.grey[1]}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a3'), {
+    type:'bar',
+    data:{
+        labels:labels12,
+        datasets:[
+            {type:'bar', label:'Ingresos', data:rnd(45,100), backgroundColor:alpha(ap3[0],.78), borderColor:ap3[0], borderWidth:1.4, yAxisID:'y'},
+            {type:'line', label:'Objetivo', data:rnd(55,95), borderColor:ap3[1], backgroundColor:alpha(ap3[1],0), borderWidth:2.4, pointRadius:2.5, tension:.2, yAxisID:'y'},
+            {type:'line', label:'Margen', data:rnd(20,65), borderColor:ap3[2], backgroundColor:alpha(ap3[2],.12), borderWidth:2, pointRadius:2, fill:true, tension:.35, yAxisID:'y1'},
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{grid:{display:false}, ticks:{color:T.grey[5]}},
+            y:{position:'left', ticks:{color:ap3[0]}, grid:{color:T.grey[1]}},
+            y1:{position:'right', ticks:{color:ap3[2]}, grid:{drawOnChartArea:false}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a4'), {
+    type:'line',
+    data:{
+        labels:labels12,
+        datasets:[
+            {label:'SLA real', data:rnd(60,95), borderColor:ap4[0], backgroundColor:alpha(ap4[0],0), stepped:true, borderWidth:2.4, pointRadius:2},
+            {label:'SLA objetivo', data:Array.from({length:12},()=>85), borderColor:ap4[1], backgroundColor:alpha(ap4[1],0), borderWidth:2, borderDash:[6,4], pointRadius:0},
+            {label:'Capacidad', data:rnd(50,90), borderColor:ap4[2], backgroundColor:alpha(ap4[2],.14), fill:true, tension:.4, borderWidth:2, pointRadius:2},
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{grid:{display:false}, ticks:{color:T.grey[5]}},
+            y:{grid:{color:T.grey[1]}, ticks:{color:T.grey[5]}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a5'), {
+    type:'scatter',
+    data:{
+        datasets:[
+            {
+                type:'scatter',
+                label:'Operaciones',
+                data:Array.from({length:24}, (_,i)=>({x:i+1, y:Math.round(Math.random()*65+20)})),
+                borderColor:ap5[0],
+                backgroundColor:alpha(ap5[0],.35),
+                pointRadius:4,
+            },
+            {
+                type:'line',
+                label:'Tendencia',
+                data:[{x:1,y:28},{x:24,y:82}],
+                borderColor:ap5[1],
+                backgroundColor:alpha(ap5[1],0),
+                borderWidth:2.5,
+                pointRadius:0,
+                tension:0,
+            }
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{type:'linear', min:0, max:24, ticks:{color:T.grey[5]}, grid:{color:T.grey[1]}},
+            y:{min:0, max:100, ticks:{color:T.grey[5]}, grid:{color:T.grey[1]}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a6'), {
+    type:'bubble',
+    data:{
+        datasets:[
+            {
+                type:'bubble',
+                label:'Volumen',
+                data:Array.from({length:10}, ()=>({
+                    x:Math.round(Math.random()*90+5),
+                    y:Math.round(Math.random()*90+5),
+                    r:Math.round(Math.random()*10+6)
+                })),
+                backgroundColor:alpha(ap6[0],.45),
+                borderColor:ap6[0],
+                borderWidth:1.2,
+            },
+            {
+                type:'scatter',
+                label:'Riesgo',
+                data:Array.from({length:12}, ()=>({x:Math.round(Math.random()*95+2), y:Math.round(Math.random()*95+2)})),
+                backgroundColor:alpha(ap6[1],.6),
+                borderColor:ap6[1],
+                pointRadius:3,
+            },
+            {
+                type:'line',
+                label:'Referencia',
+                data:[{x:10,y:20},{x:90,y:80}],
+                borderColor:ap6[2],
+                borderWidth:2,
+                pointRadius:0,
+            }
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{type:'linear', min:0, max:100, ticks:{color:T.grey[5]}, grid:{color:T.grey[1]}},
+            y:{min:0, max:100, ticks:{color:T.grey[5]}, grid:{color:T.grey[1]}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a7'), {
+    type:'bar',
+    data:{
+        labels:labels6,
+        datasets:[
+            {label:'Q1-A', data:rnd(10,35,6), backgroundColor:alpha(ap7[0],.85), borderColor:ap7[0], borderWidth:1, stack:'q1'},
+            {label:'Q1-B', data:rnd(8,30,6), backgroundColor:alpha(ap7[1],.85), borderColor:ap7[1], borderWidth:1, stack:'q1'},
+            {label:'Q2-A', data:rnd(10,35,6), backgroundColor:alpha(ap7[2],.85), borderColor:ap7[2], borderWidth:1, stack:'q2'},
+            {label:'Q2-B', data:rnd(8,30,6), backgroundColor:alpha(ap7[3],.85), borderColor:ap7[3], borderWidth:1, stack:'q2'},
+        ]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+            x:{stacked:true, grid:{display:false}, ticks:{color:T.grey[5]}},
+            y:{stacked:true, grid:{color:T.grey[1]}, ticks:{color:T.grey[5]}}
+        }
+    }
+});
+
+new Chart(document.getElementById('a8'), {
+    type:'doughnut',
+    data:{
+        labels:['Progreso','Pendiente'],
+        datasets:[{
+            data:[72,28],
+            backgroundColor:[ap8[0], ap8[1]],
+            borderWidth:0,
+            hoverOffset:0,
+        }]
+    },
+    options:{
+        rotation:-90,
+        circumference:180,
+        cutout:'72%',
+        responsive:true,
+        maintainAspectRatio:true,
+        plugins:{legend:{display:false}}
     }
 });
 </script>
